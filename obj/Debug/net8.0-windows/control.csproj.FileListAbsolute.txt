@@ -983,3 +983,4 @@ C:\Users\mehmetaligok\Desktop\Bitirme kontrol uygulaması\control\control\bin\De
 C:\Users\mehmetaligok\Desktop\Bitirme kontrol uygulaması\control\control\bin\Debug\net8.0-windows\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\mehmetaligok\Desktop\Bitirme kontrol uygulaması\control\control\obj\Debug\net8.0-windows\LoginWindow.g.cs
 C:\Users\mehmetaligok\Desktop\Bitirme kontrol uygulaması\control\control\obj\Debug\net8.0-windows\LoginWindow.baml
+C:\Users\mehmetaligok\Desktop\Bitirme kontrol uygulaması\control\control\obj\Debug\net8.0-windows\control.sourcelink.json

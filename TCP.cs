@@ -43,7 +43,6 @@ namespace control
             {
                 return false;
             }
-
         }
         //robot control data send
         public async Task SendCommandAsync(string type, string command)

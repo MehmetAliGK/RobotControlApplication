@@ -20,15 +20,19 @@
                 </Grid.ColumnDefinitions>
                 <ProgressBar x:Name="progressBar" Value="100" Grid.Column="1" Margin="136,0,0,0"/>
                 <!-- Buradaki value değerini raspberryden gelen değere göre güncelleyecek bir kod yazılacak. -->
-                <Label x:Name="batteryStatus" Content="%100" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="100,0,0,0" FontSize="20" FontWeight="Bold"/>
+                <TextBlock x:Name="batteryStatus" Text="%100" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="100,0,0,0" FontSize="20" FontWeight="Bold"/>
                 <Label Content="BATTERY STATUS:" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,311,0" Visibility="Visible" Foreground="Black" FontWeight="Bold" FontSize="15"/>
-                <Label Content="DISTANCE TO ROOF EDGE =" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" FontWeight="Bold" FontSize="15"/>
+                <Label x:Name="gpsdeneme" Content="DISTANCE TO ROOF EDGE =" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" FontWeight="Bold" FontSize="15"/>
                 <Label x:Name="distanceSensor" Content="WAITING FOR SENSOR" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="207,0,0,0" FontWeight="Bold" FontSize="15"/>
             </Grid>
 
 
             <Grid Margin="593,35,10,49">
-                <GroupBox Header="CAMERA" Margin="0,0,0,80" Height="586" VerticalAlignment="Bottom" FontSize="20" FontWeight="Bold">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="399*"/>
+                    <ColumnDefinition Width="533*"/>
+                </Grid.ColumnDefinitions>
+                <GroupBox Header="CAMERA" Margin="0,0,0,80" Height="586" VerticalAlignment="Bottom" FontSize="20" FontWeight="Bold" Grid.ColumnSpan="2">
                     <Grid>
                         <Image x:Name="CameraDefaultImage" Source="pack://application:,,,/Images/CameraImage.jpg" Stretch="Fill" Visibility="Visible"/>
                         <vlc:VideoView x:Name="videoView" Grid.Row="1" Height="490" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="50,0,50,0" Visibility="Collapsed"/>
@@ -36,7 +40,7 @@
 
                 </GroupBox>
 
-                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Margin="290,623,0,0" RenderTransformOrigin="0.503,0.561">
+                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Margin="290,623,0,0" RenderTransformOrigin="0.503,0.561" Grid.ColumnSpan="2">
                     <Button Click="btnStart_Click" Content="START VIDEO" Margin="5,0,10,0" Width="200" Height="75" Background="Green" FontSize="25" FontWeight="Bold"/>
                     <Button Click="btnStop_Click" Content="STOP VIDEO" Margin="10,0,5,0" Width="200" Height="75" Background="Red" FontSize="25" FontWeight="Bold"/>
                 </StackPanel>
@@ -111,7 +115,8 @@
 
             <Button x:Name="TcpConnectButton" Click="TcpConnectButton_Click" Content="CONNECT TO ROBOT" HorizontalAlignment="Left" Margin="593,697,0,0" VerticalAlignment="Top" Background="#FFA4CCFD" FontSize="19" FontWeight="Bold" Height="75" Width="200">
             </Button>
-
+            <Slider x:Name="robotControlSlider" HorizontalAlignment="Left" Margin="30,743,0,0" VerticalAlignment="Top" Width="529" ValueChanged ="Slider_ValueChanged" TickPlacement="BottomRight" Cursor="Hand" Maximum="100" Value="50" Background="#FFA4CCFD" TickFrequency="10" LargeChange="10" SmallChange="10" Focusable="False"/>
+            <TextBox  HorizontalAlignment="Left" Margin="30,712,0,39" TextWrapping="Wrap" Text="ROBOT CONTROL" Width="529" FontSize="20" Background="LightBlue" IsReadOnly="True"/>
         </Grid>
     </Viewbox>
 </Window>

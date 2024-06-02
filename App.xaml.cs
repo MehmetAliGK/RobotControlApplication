@@ -9,14 +9,13 @@ namespace control
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            base.OnStartup(e);
+       // protected override void OnStartup(StartupEventArgs e)
+        //{
+          //  base.OnStartup(e);
 
-            // Giriş ekranını göster
-            LoginWindow loginWindow = new LoginWindow();
-            loginWindow.Show();
-        }
+            //LoginWindow loginWindow = new LoginWindow();
+           //loginWindow.Show();
+        //}
 
     }
 

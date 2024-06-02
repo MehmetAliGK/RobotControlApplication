@@ -13,28 +13,26 @@ namespace control
 {
     class RobotController
     {
-        //TCP komutları ("TPYE", "COMMAND")
+        //MAGOK: TCP komutları ("TPYE", "COMMAND")
         public async void Forward()
         {                
-            //await TCPConnection.Instance.SendCommandAsync("robot_move","forward");
+            await TCPConnection.Instance.SendCommandAsync("robot_move","forward");
         }
-        public async void Back()
+        public async void Backward()
         {
-            //await TCPConnection.Instance.SendCommandAsync("robot_move","back");
+            await TCPConnection.Instance.SendCommandAsync("robot_move","backward");
         }
         public async void TurnRight()
         {
-            //await TCPConnection.Instance.SendCommandAsync("robot_move","turn_right");
+            await TCPConnection.Instance.SendCommandAsync("robot_move","right");
         }
         public async void TurnLeft()
         {
-            //await TCPConnection.Instance.SendCommandAsync("robot_move","turn_left");
-
+            await TCPConnection.Instance.SendCommandAsync("robot_move","left");
         }
         public async void Stop()
         {
-            //await TCPConnection.Instance.SendCommandAsync("robot_move","stop");
+            await TCPConnection.Instance.SendCommandAsync("robot_move","stop");
         }
-
     }
 }
