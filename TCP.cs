@@ -45,7 +45,7 @@ namespace control
             }
         }
         //robot control data send
-        public async Task SendCommandAsync(string type, string command)
+        public async Task SendCommandAsync(string type, string command, double X=0.0, double Y= 0.0)
         {
             if (stream == null)
             {
@@ -53,7 +53,7 @@ namespace control
             }
             try
             {
-                var commandData = new { Type = type, Command = command };
+                var commandData = new { Type = type, Command = command , X = X, Y = Y };
                 string jsonData = JsonConvert.SerializeObject(commandData);
                 byte[] data = Encoding.UTF8.GetBytes(jsonData);
                 await stream.WriteAsync(data, 0, data.Length);

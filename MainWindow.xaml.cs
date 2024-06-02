@@ -71,7 +71,7 @@ namespace control
         }
         private async void TcpConnectButton_Click(object sender, RoutedEventArgs e)
         {
-            bool isConnected = await TCPConnection.Instance.Connect("192.168.0.14", 5000);
+            bool isConnected = await TCPConnection.Instance.Connect("192.168.19.243", 5000);
             if (isConnected)
             {
                 _dataPollingTimer = new DispatcherTimer()
@@ -152,16 +152,7 @@ namespace control
 
                 Dispatcher.Invoke(() =>
                 {
-                    distanceSensor.Content = robotData.Distance;
-                    gpsdeneme.Content = robotData.GPS;
-                    var gpsData = robotData.GPS.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (gpsData.Length > 0)
-                    {
-                        if (double.TryParse(gpsData[0], out double lat) && double.TryParse(gpsData[1], out double lng))
-                        {
-                            UpdateMapPosition(lat, lng);
-                        }
-                    }
+                    
                 });
             }
             catch (Exception ex)
@@ -254,7 +245,7 @@ namespace control
             //UpdateMapPosition(39.74875, 30.47566);
             CameraDefaultImage.Visibility = Visibility.Collapsed;
             //_videoStreamManager.Play("rtsp://192.168.1.13:8080/stream1");
-            var media = new Media(_libVLC, new Uri("http://192.168.1.13:5000/video_feed"));
+            var media = new Media(_libVLC, new Uri("http://192.168.19.243:5000/video_feed"));
             _mediaPlayer.Play(media);
             videoView.Visibility = Visibility.Visible;
         }
@@ -274,14 +265,11 @@ namespace control
 
             try
             {
-                if (valueSlider > 50)
-                {
-                    await TCPConnection.Instance.SendCommandAsync("robot_move", value);
-                }
-                else if (valueSlider < 50)
-                {
-                    await TCPConnection.Instance.SendCommandAsync("robot_move", value);
-                }
+                await TCPConnection.Instance.SendCommandAsync(
+                    type: "robot_move",
+                    command: "move",
+                    Y: 1.0,
+                    X: (valueSlider - 50.0) / 50.0);
             }
             catch (Exception ex)
             {
