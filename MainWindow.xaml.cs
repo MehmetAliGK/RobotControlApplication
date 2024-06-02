@@ -38,6 +38,8 @@ namespace control
         private DispatcherTimer _dispatcherTimer;
         private int _currentIndex = 0;
         private StringBuilder _dataBuffer = new StringBuilder();
+        private LibVLC _libVLC;
+        private MediaPlayer _mediaPlayer;
         public MainWindow()
         {
             InitializeComponent();
@@ -45,8 +47,14 @@ namespace control
             InitializeMap();
             Loaded += MainWindow_Loaded;
 
-            _videoStreamManager = new VideoStreamManager();
-            videoView.MediaPlayer = _videoStreamManager.MediaPlayer;
+            //_videoStreamManager = new VideoStreamManager();
+            //videoView.MediaPlayer = _videoStreamManager.MediaPlayer;
+            _libVLC = new LibVLC();
+            _mediaPlayer = new MediaPlayer(_libVLC)
+            {
+                AspectRatio = "16:9"       //MAGOK: video kenar boşlukları icin
+            };
+            videoView.MediaPlayer = _mediaPlayer;
 
             _robotController = new RobotController();
             _cameraController = new CameraController();
@@ -59,7 +67,7 @@ namespace control
 
             this.KeyDown += MainWindow_KeyDown;
             this.KeyUp += MainWindow_KeyUp;
-            _videoStreamManager.StreamManager();
+            //_videoStreamManager.StreamManager();
         }
         private async void TcpConnectButton_Click(object sender, RoutedEventArgs e)
         {
@@ -246,7 +254,9 @@ namespace control
             //UpdateMapPosition(39.74875, 30.47566);
             CameraDefaultImage.Visibility = Visibility.Collapsed;
             //_videoStreamManager.Play("rtsp://192.168.1.13:8080/stream1");
-
+            var media = new Media(_libVLC, new Uri("http://192.168.1.13:5000/video_feed"));
+            _mediaPlayer.Play(media);
+            videoView.Visibility = Visibility.Visible;
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
@@ -255,6 +265,7 @@ namespace control
             Map.Visibility = Visibility.Collapsed;
             GpsDefaultImage.Visibility = Visibility.Visible;
             //_videoStreamManager.Stop();
+            _mediaPlayer.Stop();
         }
         private async void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
