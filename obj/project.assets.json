@@ -2885,32 +2885,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\mehmetaligok\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\pc\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mehmetaligok\\Desktop\\Bitirme kontrol uygulaması\\control\\control\\control.csproj",
+      "projectUniqueName": "C:\\Users\\pc\\source\\repos\\RobotControlApplication\\control.csproj",
       "projectName": "control",
-      "projectPath": "C:\\Users\\mehmetaligok\\Desktop\\Bitirme kontrol uygulaması\\control\\control\\control.csproj",
-      "packagesPath": "C:\\Users\\mehmetaligok\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mehmetaligok\\Desktop\\Bitirme kontrol uygulaması\\control\\control\\obj\\",
+      "projectPath": "C:\\Users\\pc\\source\\repos\\RobotControlApplication\\control.csproj",
+      "packagesPath": "C:\\Users\\pc\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\pc\\source\\repos\\RobotControlApplication\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\mehmetaligok\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\pc\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0-windows"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2977,7 +2970,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
   },
