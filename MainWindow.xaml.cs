@@ -2,6 +2,7 @@
 using GMap.NET;
 using GMap.NET.MapProviders;
 using GMap.NET.WindowsPresentation;
+using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
@@ -40,6 +41,8 @@ namespace control
         private StringBuilder _dataBuffer = new StringBuilder();
         private LibVLC _libVLC;
         private MediaPlayer _mediaPlayer;
+        private bool _isDragging = false;
+        private System.Windows.Point clickPosition;
         public MainWindow()
         {
             InitializeComponent();
@@ -65,13 +68,18 @@ namespace control
         {
             Core.Initialize();
 
+            clickPosition = new System.Windows.Point(JoystickCanvas.Width / 2, JoystickCanvas.Height / 2);
+            JoystickCanvas.MouseMove += JoystickCanvas_MouseMove;
+            JoystickCanvas.MouseLeftButtonDown += JoystickCanvas_MouseLeftButtonDown;
+            JoystickCanvas.MouseLeftButtonUp += JoystickCanvas_MouseLeftButtonUp;
+
             this.KeyDown += MainWindow_KeyDown;
             this.KeyUp += MainWindow_KeyUp;
             //_videoStreamManager.StreamManager();
         }
         private async void TcpConnectButton_Click(object sender, RoutedEventArgs e)
         {
-            bool isConnected = await TCPConnection.Instance.Connect("192.168.0.14", 5000);
+            bool isConnected = await TCPConnection.Instance.Connect("192.168.0.13",8080);
             if (isConnected)
             {
                 _dataPollingTimer = new DispatcherTimer()
@@ -88,16 +96,76 @@ namespace control
                 MessageBox.Show("CONNNECTION FAILED");
             }
         }
+        private void JoystickCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isDragging)
+            {
+                System.Windows.Point currentPosition = e.GetPosition(JoystickCanvas);
+                double offsetX = currentPosition.X - clickPosition.X;
+                double offsetY = currentPosition.Y - clickPosition.Y;
 
+                double newX = Canvas.GetLeft(JoystickHandle) + offsetX;
+                double newY = Canvas.GetTop(JoystickHandle) + offsetY;
+
+                double canvasWidth = JoystickCanvas.ActualWidth - JoystickHandle.Width;
+                double canvasHeight = JoystickCanvas.ActualHeight - JoystickHandle.Height;
+
+                newX = Math.Max(0, Math.Min(newX, canvasWidth));
+                newY = Math.Max(0, Math.Min(newY, canvasHeight));
+
+                Canvas.SetLeft(JoystickHandle, newX);
+                Canvas.SetTop(JoystickHandle, newY);
+
+                clickPosition = currentPosition;
+
+                // MAGOK: Elips poziyonunu normallestirme.
+                SendJoystickPositionToRaspberryPi(newX, newY, canvasWidth, canvasHeight);
+
+            }
+        }
+
+        private void JoystickCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _isDragging = true;
+            JoystickCanvas.CaptureMouse();
+        }
+
+        private void JoystickCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _isDragging = false;
+            JoystickCanvas.ReleaseMouseCapture();
+
+            // MAGOK:Joystick'i merkeze geri döndür
+            Canvas.SetLeft(JoystickHandle, (JoystickCanvas.ActualWidth - JoystickHandle.Width) / 2);
+            Canvas.SetTop(JoystickHandle, (JoystickCanvas.ActualHeight - JoystickHandle.Height) / 2);
+
+            SendJoystickPositionToRaspberryPi(JoystickCanvas.ActualWidth / 2, JoystickCanvas.ActualHeight / 2, JoystickCanvas.ActualWidth, JoystickCanvas.ActualHeight);
+            
+        }
+
+        //MAGOK: Joystick pozisyonunu -1 ile +1 arasına getir ve gönder
+        private async void SendJoystickPositionToRaspberryPi(double handleX, double handleY, double canvasWidth, double canvasHeight)
+        { 
+            double normalizedX = (handleX - (canvasWidth / 2)) / (canvasWidth / 2);
+            double normalizedY = -((handleY - (canvasHeight / 2)) / (canvasHeight / 2));
+            try 
+            {
+                await TCPConnection.Instance.SendCommandAsync("robot_move","joystick",normalizedX, normalizedY);            
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Connection failed: " + ex.Message);
+            }
+        }
         private void InitializeMap()
         {
             Map.MapProvider = GMapProviders.OpenStreetMap;
             Map.MinZoom = 5;
             Map.MaxZoom = 100;
-            Map.Zoom = 15;
+            Map.Zoom = 18;
 
 
-            //Map.Position = new PointLatLng(54.6961334816182, 25.2985095977783);
+            Map.Position = new PointLatLng(39.74875, 30.47566);
 
             //var marker = new GMapMarker(new PointLatLng(54.6961334816182, 25.2985095977783))
             //{
@@ -254,8 +322,8 @@ namespace control
             //UpdateMapPosition(39.74875, 30.47566);
             CameraDefaultImage.Visibility = Visibility.Collapsed;
             //_videoStreamManager.Play("rtsp://192.168.1.13:8080/stream1");
-            var media = new Media(_libVLC, new Uri("http://192.168.1.13:5000/video_feed"));
-            _mediaPlayer.Play(media);
+            //var media = new Media(_libVLC, new Uri("http://192.168.19.243:8080/video_feed"));
+            //_mediaPlayer.Play(media);
             videoView.Visibility = Visibility.Visible;
         }
 
@@ -267,28 +335,25 @@ namespace control
             //_videoStreamManager.Stop();
             _mediaPlayer.Stop();
         }
-        private async void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            int valueSlider = (int)robotControlSlider.Value;
-            string value = valueSlider.ToString();
+        //private async void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        //{
+        //    int valueSlider = (int)robotControlSlider.Value;
+        //    string value = valueSlider.ToString();
 
-            try
-            {
-                if (valueSlider > 50)
-                {
-                    await TCPConnection.Instance.SendCommandAsync("robot_move", value);
-                }
-                else if (valueSlider < 50)
-                {
-                    await TCPConnection.Instance.SendCommandAsync("robot_move", value);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("There is no Connection. Check the connection and try again.");
-            }
+        //        try
+        //        {
+        //            await TCPConnection.Instance.SendCommandAsync(
+        //                type: "robot_move",
+        //                command: "move",
+        //                Y: 1.0,
+        //                X: (valueSlider - 50.0) / 50.0);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            MessageBox.Show("There is no Connection. Check the connection and try again.");
+        //        }
 
-        }
+        //}
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
@@ -297,30 +362,30 @@ namespace control
             switch (e.Key)
             {
                 //robot control
-                case Key.W:
-                    _robotController.Forward();                   
-                    ForwardButton.Background = new SolidColorBrush(Colors.Green);
-                    break;
+                //case Key.W:
+                //    _robotController.Forward();                   
+                //    ForwardButton.Background = new SolidColorBrush(Colors.Green);
+                //    break;
 
-                case Key.S:
-                    _robotController.Backward();
-                    BackButton.Background = new SolidColorBrush(Colors.Green);
-                    break;
+                //case Key.S:
+                //    _robotController.Backward();
+                //    BackButton.Background = new SolidColorBrush(Colors.Green);
+                //    break;
 
-                case Key.A:
-                    _robotController.TurnLeft();
-                    LeftButton.Background = new SolidColorBrush(Colors.Green);
-                    break;
+                //case Key.A:
+                //    _robotController.TurnLeft();
+                //    LeftButton.Background = new SolidColorBrush(Colors.Green);
+                //    break;
 
-                case Key.D:
-                    _robotController.TurnRight();
-                    RightButton.Background = new SolidColorBrush(Colors.Green);
-                    break;
+                //case Key.D:
+                //    _robotController.TurnRight();
+                //    RightButton.Background = new SolidColorBrush(Colors.Green);
+                //    break;
 
-                case Key.Space:
-                    _robotController.Stop();
-                    StopButton.Background = new SolidColorBrush(Colors.Green);
-                    break;
+                //case Key.Space:
+                //    _robotController.Stop();
+                //    StopButton.Background = new SolidColorBrush(Colors.Green);
+                //    break;
 
                 //camera control
                 case Key.Up:
@@ -388,11 +453,11 @@ namespace control
         {
             
             var defaultColorRobotButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFAACCDD");
-            ForwardButton.Background = defaultColorRobotButton;
-            BackButton.Background = defaultColorRobotButton;
-            RightButton.Background = defaultColorRobotButton;
-            LeftButton.Background = defaultColorRobotButton;
-            StopButton.Background = defaultColorRobotButton;
+            //ForwardButton.Background = defaultColorRobotButton;
+            //BackButton.Background = defaultColorRobotButton;
+            //RightButton.Background = defaultColorRobotButton;
+            //LeftButton.Background = defaultColorRobotButton;
+            //StopButton.Background = defaultColorRobotButton;
 
             var defaultColorCameraButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFA4CCFD");
             CamUpButton.Background = defaultColorCameraButton;

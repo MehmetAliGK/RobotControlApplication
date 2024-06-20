@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net.Http;
-using Newtonsoft.Json;  
+using Newtonsoft.Json;
+using System.Windows;
 namespace control
 {
     class TCPConnection
@@ -35,17 +36,18 @@ namespace control
         {
             try
             {
-                client = new TcpClient(server, port);
+                client = new TcpClient(server, port);                
                 stream = client.GetStream();
                 return true;
             }
             catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
                 return false;
             }
         }
         //robot control data send
-        public async Task SendCommandAsync(string type, string command)
+        public async Task SendCommandAsync(string type , string command , double X=0.0, double Y=0.0)
         {
             if (stream == null)
             {
@@ -53,7 +55,7 @@ namespace control
             }
             try
             {
-                var commandData = new { Type = type, Command = command };
+                var commandData = new { Type = type, Command = command, X=X, Y=Y };
                 string jsonData = JsonConvert.SerializeObject(commandData);
                 byte[] data = Encoding.UTF8.GetBytes(jsonData);
                 await stream.WriteAsync(data, 0, data.Length);
@@ -89,7 +91,7 @@ namespace control
         [JsonProperty("GPS")]
         public string GPS { get; set; }
 
-        [JsonProperty("Distance")]
+        [JsonProperty("distance")]
         public double Distance { get; set; }
 
         [JsonProperty("Battery")]
