@@ -277,7 +277,7 @@ namespace control
             try
             {
                 var robotData = await TCPConnection.Instance.ReceiveDataAsync<RobotData>();
-
+                /*
                 Dispatcher.Invoke(() =>
                 {
                     gpsdeneme.Content = robotData.GPS;
@@ -289,14 +289,15 @@ namespace control
                             UpdateMapPosition(lat, lng);
                         }
                     }
-                });
+                });*/
+
             }
             catch (Exception ex)
             {
                 _dataPollingTimer.Stop();
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show($"Error receiving data: {ex.Message}");
+                    //MessageBox.Show($"Error receiving data: {ex.Message}");
                 });
             }
         }
@@ -399,36 +400,11 @@ namespace control
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            //if (pressedKeys.Contains(e.Key)) return;
+            System.Diagnostics.Debug.WriteLine("Key Down: " + e.Key);
+            if (pressedKeys.Contains(e.Key)) return;
             pressedKeys.Add(e.Key);
             switch (e.Key)
             {
-                //robot control
-                //case Key.W:
-                //    _robotController.Forward();                   
-                //    ForwardButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
-                //case Key.S:
-                //    _robotController.Backward();
-                //    BackButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
-                //case Key.A:
-                //    _robotController.TurnLeft();
-                //    LeftButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
-                //case Key.D:
-                //    _robotController.TurnRight();
-                //    RightButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
-                //case Key.Space:
-                //    _robotController.Stop();
-                //    StopButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
                 //camera control
                 case Key.Up:
                     _cameraController.Up();
@@ -449,46 +425,8 @@ namespace control
                     _cameraController.Left();
                     CamRightButton.Background = new SolidColorBrush(Colors.Red);
                     break;
-                case Key.NumPad0:
-                    _cameraController.Reset();
-                    ResetButton.Background = new SolidColorBrush(Colors.Red);
-                    break;
             }
             
-            pressedKeys.Add(e.Key);
-
-            if (pressedKeys.Contains(Key.Up) && pressedKeys.Contains(Key.Left))
-            {
-                _cameraController.UpLeft();
-                var defaultColorCameraButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFA4CCFD");
-                CamUpButton.Background = defaultColorCameraButton;
-                CamLeftButton.Background = defaultColorCameraButton;
-                UpLeftButton.Background = new SolidColorBrush(Colors.Red);
-            }
-            if (pressedKeys.Contains(Key.Up) && pressedKeys.Contains(Key.Right))
-            {
-                _cameraController.UpRight();
-                var defaultColorCameraButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFA4CCFD");
-                CamUpButton.Background = defaultColorCameraButton;
-                CamRightButton.Background = defaultColorCameraButton;
-                UpRightButton.Background = new SolidColorBrush(Colors.Red);
-            }
-            if (pressedKeys.Contains(Key.Down) && pressedKeys.Contains(Key.Right))
-            {
-                _cameraController.DownRight();
-                var defaultColorCameraButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFA4CCFD");
-                CamDownButton.Background = defaultColorCameraButton;
-                CamRightButton.Background = defaultColorCameraButton;
-                DownRightButton.Background = new SolidColorBrush(Colors.Red);
-            }
-            if (pressedKeys.Contains(Key.Down) && pressedKeys.Contains(Key.Left))
-            {
-                _cameraController.DownLeft();
-                var defaultColorCameraButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFA4CCFD");
-                CamDownButton.Background = defaultColorCameraButton;
-                CamLeftButton.Background = defaultColorCameraButton;
-                DownLeftButton.Background = new SolidColorBrush(Colors.Red);
-            }
         }
 
         private void MainWindow_KeyUp(object sender, KeyEventArgs e)
