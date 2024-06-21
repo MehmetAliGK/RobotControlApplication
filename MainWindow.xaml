@@ -22,8 +22,8 @@
                 <!-- Buradaki value değerini raspberryden gelen değere göre güncelleyecek bir kod yazılacak. -->
                 <TextBlock x:Name="batteryStatus" Text="%100" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="100,0,0,0" FontSize="20" FontWeight="Bold"/>
                 <Label Content="BATTERY STATUS:" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,311,0" Visibility="Visible" Foreground="Black" FontWeight="Bold" FontSize="15"/>
-                <Label x:Name="gpsdeneme" Content="DISTANCE TO ROOF EDGE =" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" FontWeight="Bold" FontSize="15"/>
-                <Label x:Name="distanceSensor" Content="WAITING FOR SENSOR" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="207,0,0,0" FontWeight="Bold" FontSize="15"/>
+				<Label x:Name="gpsdeneme" Content="GPS TEST" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" FontWeight="Bold" FontSize="15"/>
+                <!--Label x:Name="distanceSensor" Content="WAITING FOR SENSOR" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="207,0,0,0" FontWeight="Bold" FontSize="15"/-->
             </Grid>
 
 
