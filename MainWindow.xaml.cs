@@ -90,7 +90,7 @@ namespace control
             string ipAddress = _globalIpAddress;
 
             string[] parts = ipAddress.Split('.');
-            parts[3] = "13";
+            parts[3] = "243";
             ipAddress = string.Join(".", parts);
 
             bool isConnected = await TCPConnection.Instance.Connect(ipAddress, 5000);
@@ -108,7 +108,7 @@ namespace control
 
             else
             {
-                parts[3] = "243";
+                parts[3] = "13";
                 ipAddress = string.Join(".", parts);
                 isConnected = await TCPConnection.Instance.Connect(ipAddress, 5000);
                 if (isConnected)
@@ -297,7 +297,7 @@ namespace control
                 _dataPollingTimer.Stop();
                 Dispatcher.Invoke(() =>
                 {
-                    //MessageBox.Show($"Error receiving data: {ex.Message}");
+                    // MessageBox.Show($"Error receiving data: {ex.Message}");
                 });
             }
         }

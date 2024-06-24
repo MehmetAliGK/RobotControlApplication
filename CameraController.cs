@@ -22,11 +22,11 @@ namespace control
         }
         public async void Right()
         {
-            await TCPConnection.Instance.SendCommandAsync("camera_move","axis,direction",1,1);
+            await TCPConnection.Instance.SendCommandAsync("camera_move","axis,direction",0,1);
         }
         public async void Left()
         {
-            await TCPConnection.Instance.SendCommandAsync("camera_move", "axis,direction", 1, 0);
+            await TCPConnection.Instance.SendCommandAsync("camera_move", "axis,direction", 0, 0);
         }
         public async void Reset()
         {
