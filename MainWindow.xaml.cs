@@ -377,15 +377,17 @@ namespace control
 
         private async void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            GpsDefaultImage.Visibility = Visibility.Collapsed;
-            Map.Visibility = Visibility.Visible;
+            //GpsDefaultImage.Visibility = Visibility.Collapsed;
+            //Map.Visibility = Visibility.Visible;
 
             CameraDefaultImage.Visibility = Visibility.Collapsed;
 
             string link = "http://" + _globalIpAddress + ":8080/video_feed";
             var media = new Media(_libVLC, new Uri(link));
+
             //_mediaPlayer.Play(media);
             videoView.Visibility = Visibility.Visible;
+
             _mediaPlayer.Play(media);
         }
 
