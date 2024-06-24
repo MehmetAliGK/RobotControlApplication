@@ -21,6 +21,7 @@ using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 using System.IO;
 using Xamarin.Forms;
 using Microsoft.VisualBasic;
+using System.Net;
 
 namespace control
 {
@@ -43,12 +44,18 @@ namespace control
         private MediaPlayer _mediaPlayer;
         private bool _isDragging = false;
         private System.Windows.Point clickPosition;
+        private static string _globalIpAddress; // Global variable to hold the IP address
+
+        //Global Time holder
+        private static DateTime _holdTime = DateTime.Now;
+
         public MainWindow()
         {
             InitializeComponent();
             InitializeTimer();
             InitializeMap();
             Loaded += MainWindow_Loaded;
+            _globalIpAddress = GetIPAddress();
 
             //_videoStreamManager = new VideoStreamManager();
             //videoView.MediaPlayer = _videoStreamManager.MediaPlayer;
@@ -62,9 +69,10 @@ namespace control
             _robotController = new RobotController();
             _cameraController = new CameraController();
 
-        }
-      
-        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+
+    }
+
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Core.Initialize();
 
@@ -79,9 +87,16 @@ namespace control
         }
         private async void TcpConnectButton_Click(object sender, RoutedEventArgs e)
         {
-            bool isConnected = await TCPConnection.Instance.Connect("192.168.0.13",8080);
+            string ipAddress = _globalIpAddress;
+
+            string[] parts = ipAddress.Split('.');
+            parts[3] = "243";
+            ipAddress = string.Join(".", parts);
+
+            bool isConnected = await TCPConnection.Instance.Connect(ipAddress, 5000);
             if (isConnected)
             {
+                _globalIpAddress = ipAddress;
                 _dataPollingTimer = new DispatcherTimer()
                 {
                     Interval = TimeSpan.FromSeconds(1),
@@ -93,8 +108,47 @@ namespace control
 
             else
             {
-                MessageBox.Show("CONNNECTION FAILED");
+                parts[3] = "13";
+                ipAddress = string.Join(".", parts);
+                isConnected = await TCPConnection.Instance.Connect(ipAddress, 5000);
+                if (isConnected)
+                {
+                    _globalIpAddress = ipAddress;
+                    _dataPollingTimer = new DispatcherTimer()
+                    {
+                        Interval = TimeSpan.FromSeconds(1),
+                    };
+                    _dataPollingTimer.Tick += DataPollingTimer_Tick;
+                    _dataPollingTimer.Start();
+                    MessageBox.Show("CONNECTION SUCCESFULL");
+                }
+                else
+                {
+                    MessageBox.Show("CONNNECTION FAILED");
+                }
             }
+        }
+        private static string GetIPAddress()
+        {
+            string ipAddress = string.Empty;
+
+            try
+            {
+                foreach (var ip in Dns.GetHostAddresses(Dns.GetHostName()))
+                {
+                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        ipAddress = ip.ToString();
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred: " + ex.Message);
+            }
+
+            return ipAddress;
         }
         private void JoystickCanvas_MouseMove(object sender, MouseEventArgs e)
         {
@@ -146,6 +200,10 @@ namespace control
         //MAGOK: Joystick pozisyonunu -1 ile +1 arasına getir ve gönder
         private async void SendJoystickPositionToRaspberryPi(double handleX, double handleY, double canvasWidth, double canvasHeight)
         { 
+            if ((DateTime.Now - _holdTime).TotalMilliseconds < 200)
+            {
+                return;
+            }
             double normalizedX = (handleX - (canvasWidth / 2)) / (canvasWidth / 2);
             double normalizedY = -((handleY - (canvasHeight / 2)) / (canvasHeight / 2));
             try 
@@ -156,6 +214,8 @@ namespace control
             {
                 MessageBox.Show("Connection failed: " + ex.Message);
             }
+
+            _holdTime = DateTime.Now;
         }
         private void InitializeMap()
         {
@@ -217,10 +277,9 @@ namespace control
             try
             {
                 var robotData = await TCPConnection.Instance.ReceiveDataAsync<RobotData>();
-
+                /*
                 Dispatcher.Invoke(() =>
                 {
-                    distanceSensor.Content = robotData.Distance;
                     gpsdeneme.Content = robotData.GPS;
                     var gpsData = robotData.GPS.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                     if (gpsData.Length > 0)
@@ -230,14 +289,15 @@ namespace control
                             UpdateMapPosition(lat, lng);
                         }
                     }
-                });
+                });*/
+
             }
             catch (Exception ex)
             {
                 _dataPollingTimer.Stop();
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show($"Error receiving data: {ex.Message}");
+                    // MessageBox.Show($"Error receiving data: {ex.Message}");
                 });
             }
         }
@@ -319,12 +379,14 @@ namespace control
         {
             GpsDefaultImage.Visibility = Visibility.Collapsed;
             Map.Visibility = Visibility.Visible;
-            //UpdateMapPosition(39.74875, 30.47566);
+
             CameraDefaultImage.Visibility = Visibility.Collapsed;
-            //_videoStreamManager.Play("rtsp://192.168.1.13:8080/stream1");
-            //var media = new Media(_libVLC, new Uri("http://192.168.19.243:8080/video_feed"));
+
+            string link = "http://" + _globalIpAddress + ":8080/video_feed";
+            var media = new Media(_libVLC, new Uri(link));
             //_mediaPlayer.Play(media);
             videoView.Visibility = Visibility.Visible;
+            _mediaPlayer.Play(media);
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
@@ -335,58 +397,14 @@ namespace control
             //_videoStreamManager.Stop();
             _mediaPlayer.Stop();
         }
-        //private async void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        //{
-        //    int valueSlider = (int)robotControlSlider.Value;
-        //    string value = valueSlider.ToString();
-
-        //        try
-        //        {
-        //            await TCPConnection.Instance.SendCommandAsync(
-        //                type: "robot_move",
-        //                command: "move",
-        //                Y: 1.0,
-        //                X: (valueSlider - 50.0) / 50.0);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            MessageBox.Show("There is no Connection. Check the connection and try again.");
-        //        }
-
-        //}
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("Key Down: " + e.Key);
             if (pressedKeys.Contains(e.Key)) return;
             pressedKeys.Add(e.Key);
             switch (e.Key)
             {
-                //robot control
-                //case Key.W:
-                //    _robotController.Forward();                   
-                //    ForwardButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
-                //case Key.S:
-                //    _robotController.Backward();
-                //    BackButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
-                //case Key.A:
-                //    _robotController.TurnLeft();
-                //    LeftButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
-                //case Key.D:
-                //    _robotController.TurnRight();
-                //    RightButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
-                //case Key.Space:
-                //    _robotController.Stop();
-                //    StopButton.Background = new SolidColorBrush(Colors.Green);
-                //    break;
-
                 //camera control
                 case Key.Up:
                     _cameraController.Up();
@@ -407,46 +425,8 @@ namespace control
                     _cameraController.Left();
                     CamRightButton.Background = new SolidColorBrush(Colors.Red);
                     break;
-                case Key.NumPad0:
-                    _cameraController.Reset();
-                    ResetButton.Background = new SolidColorBrush(Colors.Red);
-                    break;
             }
             
-            pressedKeys.Add(e.Key);
-
-            if (pressedKeys.Contains(Key.Up) && pressedKeys.Contains(Key.Left))
-            {
-                _cameraController.UpLeft();
-                var defaultColorCameraButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFA4CCFD");
-                CamUpButton.Background = defaultColorCameraButton;
-                CamLeftButton.Background = defaultColorCameraButton;
-                UpLeftButton.Background = new SolidColorBrush(Colors.Red);
-            }
-            if (pressedKeys.Contains(Key.Up) && pressedKeys.Contains(Key.Right))
-            {
-                _cameraController.UpRight();
-                var defaultColorCameraButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFA4CCFD");
-                CamUpButton.Background = defaultColorCameraButton;
-                CamRightButton.Background = defaultColorCameraButton;
-                UpRightButton.Background = new SolidColorBrush(Colors.Red);
-            }
-            if (pressedKeys.Contains(Key.Down) && pressedKeys.Contains(Key.Right))
-            {
-                _cameraController.DownRight();
-                var defaultColorCameraButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFA4CCFD");
-                CamDownButton.Background = defaultColorCameraButton;
-                CamRightButton.Background = defaultColorCameraButton;
-                DownRightButton.Background = new SolidColorBrush(Colors.Red);
-            }
-            if (pressedKeys.Contains(Key.Down) && pressedKeys.Contains(Key.Left))
-            {
-                _cameraController.DownLeft();
-                var defaultColorCameraButton = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFA4CCFD");
-                CamDownButton.Background = defaultColorCameraButton;
-                CamLeftButton.Background = defaultColorCameraButton;
-                DownLeftButton.Background = new SolidColorBrush(Colors.Red);
-            }
         }
 
         private void MainWindow_KeyUp(object sender, KeyEventArgs e)

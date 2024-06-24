@@ -16,6 +16,9 @@ namespace control
         private static NetworkStream? stream;
         private static TCPConnection? instance;
 
+        //Global Time holder
+        private static DateTime _holdTime = DateTime.Now;
+
         // design pattern singleton uygulamasi: uygulama boyunca yalnizca bir örnek
         // olusturulmasini saglar
         public static TCPConnection Instance
@@ -49,13 +52,28 @@ namespace control
         //robot control data send
         public async Task SendCommandAsync(string type , string command , double X=0.0, double Y=0.0)
         {
+            
+            if ((DateTime.Now - _holdTime).TotalMilliseconds < 200)
+            {
+                return;
+            }
+
             if (stream == null)
             {
+                MessageBox.Show("Network stream is not available");
                 throw new Exception("Network stream is not available");
             }
             try
             {
-                var commandData = new { Type = type, Command = command, X=X, Y=Y };
+                var commandData = new object();
+                if (type == "camera_move")
+                {
+                    commandData = new { Type = type, axis=X, direction=Y };
+                }
+                else{
+                    commandData = new { Type = type, Command = command, X=X, Y=Y };
+                }
+                
                 string jsonData = JsonConvert.SerializeObject(commandData);
                 byte[] data = Encoding.UTF8.GetBytes(jsonData);
                 await stream.WriteAsync(data, 0, data.Length);
@@ -64,6 +82,8 @@ namespace control
             {
                 throw new InvalidOperationException("Failed to send command");
             }
+
+            _holdTime = DateTime.Now;
         }
 
         //data receive
